@@ -1,0 +1,487 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced To-Do List - Data Structures Demo</title>
+    <style>
+        /* =====================================================
+           CSS STYLING - Modern and Responsive Design
+           ===================================================== */
+        
+        * {
+            /* Reset default margins and padding */
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            /* Set base font and background */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            /* Main container with responsive width */
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            /* Application header styling */
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .controls-section {
+            /* Control panel styling */
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            /* Form input group styling */
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            /* Form label styling */
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            /* Form input styling */
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            /* Focus state for form inputs */
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            /* Flexbox row for form elements */
+            display: flex;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-row .form-group {
+            /* Flex form groups in row */
+            flex: 1;
+        }
+
+        .btn {
+            /* Base button styling */
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            /* Primary button - blue theme */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            /* Primary button hover effect */
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            /* Secondary button - gray theme */
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            /* Secondary button hover effect */
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            /* Danger button - red theme */
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            /* Danger button hover effect */
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .btn-success {
+            /* Success button - green theme */
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            /* Success button hover effect */
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn:disabled {
+            /* Disabled button styling */
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .stats-section {
+            /* Statistics display section */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            /* Individual statistic card */
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            /* Stat card hover effect */
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            /* Large number display in stat cards */
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            /* Label text in stat cards */
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .tasks-section {
+            /* Main tasks display section */
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            /* Section heading styling */
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .task-item {
+            /* Individual task item styling */
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-item:hover {
+            /* Task item hover effect */
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .task-item.completed {
+            /* Completed task styling */
+            opacity: 0.7;
+            background: #e8f5e8;
+            border-color: #28a745;
+        }
+
+        .task-item.completed .task-title {
+            /* Completed task title with strikethrough */
+            text-decoration: line-through;
+            color: #6c757d;
+        }
+
+        .task-priority {
+            /* Priority indicator badge */
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .priority-high {
+            /* High priority styling - red */
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .priority-medium {
+            /* Medium priority styling - orange */
+            background: #ffa726;
+            color: white;
+        }
+
+        .priority-low {
+            /* Low priority styling - green */
+            background: #66bb6a;
+            color: white;
+        }
+
+        .task-title {
+            /* Task title styling */
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .task-description {
+            /* Task description styling */
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .task-meta {
+            /* Task metadata (created date) */
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 15px;
+        }
+
+        .task-actions {
+            /* Task action buttons container */
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            /* Small button variant */
+            padding: 6px 12px;
+            font-size: 0.85rem;
+        }
+
+        .loading {
+            /* Loading spinner animation */
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+
+        .loading::after {
+            /* CSS loading spinner */
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            /* Spinner rotation animation */
+            to { transform: rotate(360deg); }
+        }
+
+        .alert {
+            /* Alert message styling */
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-success {
+            /* Success alert - green */
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            /* Error alert - red */
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .empty-state {
+            /* Empty state when no tasks */
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            /* Empty state icon */
+            font-size: 4rem;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        /* =====================================================
+           RESPONSIVE DESIGN - Mobile Optimization
+           ===================================================== */
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                flex-direction: column;
+            }
+
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .task-actions {
+                justify-content: center;
+            }
+
+            .btn {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-section {
+                grid-template-columns: 1fr;
+            }
+
+            .task-priority {
+                position: static;
+                margin-bottom: 10px;
+                display: inline-block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- =====================================================
+         HTML STRUCTURE - Application Layout
+         ===================================================== -->
+    
+    <div class="container">
+        <!-- Application Header -->
+        <div class="header">
+            <h1>🚀 Advanced To-Do List</h1>
+            <p>Demonstrating Data Structures: Linked Lists, Stacks, Queues & Arrays</p>
+        </div>
+
+        <!-- Alert Messages Container -->
+        <div id="alertContainer"></div>
+
+        <!-- Statistics Dashboard -->
+        <div class="stats-section" id="statsSection">
+            <!-- Stats will be populated by JavaScript -->
+        </div>
+
+        <!-- Task Creation Form -->
+        <div class="controls-section">
+            <h2 class="section-title">➕ Create New Task</h2>
+            <form id="taskForm">
+                <div class="form-row">
+                    <!-- Task Title Input -->
+                    <div class="form-group">
+                        <label for="taskTitle">Task Title *</label>
+                        <input type="text" id="taskTitle" name="title" required 
+                               placeholder="Enter task title...">
+                    </div>
+                    
+                    <!-- Priority Selection -->
+                    <div class="form-group">
+                        <label for="taskPriority">Priority</label>
+                        <select id="taskPriority" name="priority">
+                            <option value="low">🟢 Low</option>
+                            <option value="medium" selected>🟡 Medium</option>
+                            <option value="high">🔴 High</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Task Description -->
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" name="description" rows="3" 
+                              placeholder="Enter task description..."></textarea>
+                </div>
+                
+                <!-- Form Action Buttons -->
+                <div class="form-row">
+                    <button type="submit" class="btn btn-primary">
+                        Create
