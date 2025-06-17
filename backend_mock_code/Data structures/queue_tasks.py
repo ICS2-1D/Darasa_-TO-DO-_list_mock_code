@@ -1,5 +1,5 @@
 
-#Jeremiah
+#Jeremiah (Queue Tasks)
 class TodoQueue:
     def __init__(self):
         self.queue = []

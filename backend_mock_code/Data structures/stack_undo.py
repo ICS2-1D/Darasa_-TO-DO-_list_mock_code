@@ -1,5 +1,5 @@
 
-#Jolene
+#Jolene (Stack Undo)
 
 class TodoStack:
     def __init__(self, max_size=10):
