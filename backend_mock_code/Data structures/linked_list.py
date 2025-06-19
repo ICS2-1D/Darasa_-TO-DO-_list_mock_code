@@ -1,108 +1,126 @@
 
-#Amani and Ray (Linked List Implementation)
+# Amani and Ray (Linked List Implementation)
 
-class TodoLinkedList:
-    """
-    Linked List implementation for storing todo tasks
-    Provides O(1) insertion at head and O(n) search/deletion
-    """
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from datetime import datetime, timedelta
+
+
+@dataclass
+class PrintJob:
+    job_id: int
+    user_id: str
+    title: str
+    priority: int = 5  # Lower number = higher urgency
+    created_at: datetime = None
+
+
+class PrintQueue(ABC):
+    @abstractmethod
+    def enqueue(self, job):
+        pass
+
+    @abstractmethod
+    def dequeue(self):
+        pass
+
+    @abstractmethod
+    def snapshot(self):
+        pass
+
+    @abstractmethod
+    def remove_expired_jobs(self, max_wait_seconds):
+        pass
+
+
+class LinkedListPrintQueue(PrintQueue):
     def __init__(self):
-        self.head = None        # Points to first node
-        self.size = 0          # Track number of nodes
-        self.next_id = 1       # Auto-increment ID counter
+        self.head = None
+        self.size = 0
+        self.next_job_id = 1
 
-    def add_task(self, title, description, priority="medium"):
+    def enqueue(self, job):
         """
-        Add new task to the beginning of linked list (O(1) operation)
+        Add new print job at head of linked list.
+        Assigns auto-incremented job ID and creation timestamp.
         """
-        # Create new node with auto-incremented ID
-        new_node = TodoNode(self.next_id, title, description, priority)
-        
-        # Insert at head of linked list
+        job.job_id = self.next_job_id
+        job.created_at = datetime.now()
+        new_node = LinkedListNode(job)
         new_node.next = self.head
         self.head = new_node
-        
-        # Update counters
-        self.next_id += 1
+        self.next_job_id += 1
         self.size += 1
-        
-        return new_node.to_dict()
 
-    def get_all_tasks(self):
+    def dequeue(self):
         """
-        Traverse entire linked list and return all tasks as array
-        Time complexity: O(n)
+        Remove and return the highest-priority job (lowest priority number).
+        For simplicity, we'll scan the list to find the minimum.
         """
-        tasks = []
-        current = self.head
-        
-        # Traverse from head to tail
-        while current:
-            tasks.append(current.to_dict())
-            current = current.next
-            
-        return tasks
-
-    def find_task(self, task_id):
-        """
-        Search for task by ID in linked list
-        Time complexity: O(n)
-        """
-        current = self.head
-        
-        # Linear search through linked list
-        while current:
-            if current.task_id == task_id:
-                return current
-            current = current.next
-            
-        return None
-
-    def update_task(self, task_id, title=None, description=None, priority=None, completed=None):
-        """
-        Update existing task properties
-        Time complexity: O(n) for search + O(1) for update
-        """
-        task_node = self.find_task(task_id)
-        
-        if not task_node:
-            return None
-            
-        # Update only provided fields
-        if title is not None:
-            task_node.title = title
-        if description is not None:
-            task_node.description = description
-        if priority is not None:
-            task_node.priority = priority
-        if completed is not None:
-            task_node.completed = completed
-            
-        return task_node.to_dict()
-
-    def delete_task(self, task_id):
-        """
-        Delete task from linked list
-        Time complexity: O(n)
-        """
-        # Handle empty list
         if not self.head:
-            return False
-            
-        # Handle deletion of head node
-        if self.head.task_id == task_id:
-            self.head = self.head.next
-            self.size -= 1
-            return True
-            
-        # Search for node to delete
+            return None
+
+        prev_min = None
+        current_prev = None
         current = self.head
-        while current.next:
-            if current.next.task_id == task_id:
-                # Remove node by updating pointer
-                current.next = current.next.next
-                self.size -= 1
-                return True
+        min_node = self.head
+        min_prev = None
+
+        while current:
+            if current.job.priority < min_node.job.priority:
+                min_node = current
+                min_prev = current_prev
+            current_prev = current
             current = current.next
-            
-        return False
+
+        if min_prev is None:
+            # Min node is head
+            self.head = self.head.next
+        else:
+            min_prev.next = min_node.next
+
+        self.size -= 1
+        return min_node.job
+
+    def snapshot(self):
+        """
+        Return list of job dictionaries for visualization/logging.
+        """
+        result = []
+        current = self.head
+        while current:
+            job = current.job
+            result.append({
+                'job_id': job.job_id,
+                'user_id': job.user_id,
+                'title': job.title,
+                'priority': job.priority,
+                'created_at': job.created_at.isoformat() if job.created_at else None
+            })
+            current = current.next
+        return result
+
+    def remove_expired_jobs(self, max_wait_seconds):
+        """
+        Remove jobs older than max_wait_seconds.
+        """
+        threshold = datetime.now() - timedelta(seconds=max_wait_seconds)
+        current = self.head
+        prev = None
+
+        while current:
+            if current.job.created_at < threshold:
+                if prev:
+                    prev.next = current.next
+                else:
+                    self.head = current.next
+                self.size -= 1
+            else:
+                prev = current
+            current = current.next
+
+
+class LinkedListNode:
+    def __init__(self, job):
+        self.job = job
+        self.next = None
